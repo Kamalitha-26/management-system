@@ -3,9 +3,12 @@ from django.http import JsonResponse
 from django.http import HttpResponse
 from django.core.mail import send_mail
 from datetime import datetime, timedelta
-from .models import Visitor
+from .models import Visitor , VisitorSchedule
 from django.conf import settings
 from django.contrib import messages
+
+def dashboard(request):
+    return render(request, 'dashboard.html')
 
 def home(request):
     return render(request, 'home.html')
@@ -44,9 +47,9 @@ def visitor_registration(request):
 
             # Send email to the designated attendee
             attendee_email_mapping = {
-                'Member 1': 'athithyag24@gmail.com',
-                'Member 2': 'athithyag24@gmail.com',
-                'General': 'athithyag24@gmail.com',
+                'Member 1': 'kamalitha.7g@gmail.com',
+                'Member 2': 'kamalitha.7g@gmail.com',
+                'General': 'kamalitha.7g@gmail.com',
             }
             attendee_email = attendee_email_mapping.get(designated_attendee)
 
@@ -118,13 +121,13 @@ Best Regards,
 Pinesphere Solutions
 """
 
-            send_mail(
-                email_subject,
-                email_message,
-                settings.EMAIL_HOST_USER,
-                [visitor_email],
-                fail_silently=False,
-            )
+            # send_mail(
+            #     email_subject,
+            #     email_message,
+            #     settings.EMAIL_HOST_USER,
+            #     [visitor_email],
+            #     fail_silently=False,
+            # )
 
             # Create a corresponding VisitorSchedule object
             VisitorSchedule.objects.create(visitor=new_visitor, designated_attendee=designated_attendee)

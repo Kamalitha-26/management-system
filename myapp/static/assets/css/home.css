@@ -265,3 +265,129 @@ input[type="email"]:focus {
   background-color: #15360e;
   box-shadow: 0 0 0 1px#2a551e inset, 0 5px 10px rgba(0, 0, 0, 0.75);
 };
+
+
+/* ===== DASHBOARD STYLES ===== */
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    transition: background 0.3s;
+}
+
+/* LIGHT / DARK MODE */
+body.light {
+    background: #f4f6f8;
+    color: #000;
+}
+
+body.dark {
+    background: #0f172a;
+    color: #fff;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background: #1e293b;
+    color: white;
+    position: fixed;
+    transition: width 0.3s;
+}
+
+.sidebar.hide {
+    width: 70px;
+}
+
+.logo {
+    padding: 20px;
+    text-align: center;
+}
+
+.menu {
+    list-style: none;
+    padding: 0;
+}
+
+.menu li {
+    padding: 15px 20px;
+    cursor: pointer;
+}
+
+.menu li:hover {
+    background: #334155;
+}
+
+/* MAIN */
+.main {
+    margin-left: 250px;
+    transition: margin-left 0.3s;
+}
+
+.sidebar.hide ~ .main {
+    margin-left: 70px;
+}
+
+/* HEADER */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 25px;
+    background: #e5e7eb;
+}
+
+body.dark .header {
+    background: #020617;
+}
+
+.dashboard-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* BUTTONS */
+.toggle-btn,
+.mode-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* PROFILE */
+.profile {
+    position: relative;
+}
+
+.profile img {
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.profile-menu {
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background: white;
+    display: none;
+    border-radius: 5px;
+}
+
+.profile-menu a {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: black;
+}
+
+.profile-menu a:hover {
+    background: #f1f5f9;
+}
+
+/* CONTENT */
+.content {
+    padding: 30px;
+}
