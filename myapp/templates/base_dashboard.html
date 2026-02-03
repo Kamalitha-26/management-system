@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Visitor Space</title>
+        <style>
+            /* RESET */
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: Arial, sans-serif;
+            }
+
+            /* SIDEBAR TOGGLE & DARK MODE TOGGLE */
+            #sidebar-toggle, #mode-toggle {
+                display: none;
+            }
+
+            /* WRAPPER FOR DARK MODE */
+            .wrapper {
+                min-height: 100vh;
+                transition: margin-left 0.3s, background 0.3s, color 0.3s;
+                background: #d2d8df;  /* light mode default */
+                color: #0f172a;
+            }
+
+            /* SIDEBAR */
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                width: 240px;
+                background: #a8b2c9;
+                color: white;
+                transition: width 0.3s, background 0.3s;
+                overflow: visible;
+                z-index: 100;
+            }
+
+            /* LOGO + TOGGLE ALWAYS VISIBLE */
+            .sidebar-top {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 24px;
+            }
+            .toggle-btn {
+                font-size: 33px;
+                cursor: pointer;
+                color: #1c6e94;
+            }
+
+            /* MENU */
+            .menu {
+                margin-top: 5px;
+                transition: opacity 0.3s, visibility 0.3s, height 0.3s;
+            }
+            .menu a {
+                display: block;
+                padding: 12px 20px;
+                text-decoration: none;
+                color: #101011;
+                border-bottom: 1px solid #244b8a;
+                position: relative;
+            }
+            .menu a:hover {
+                background: #1e293b;
+            }
+            /* MAIN CONTENT */
+            .main {
+                margin-left: 240px;
+                padding: 100px 30px 30px 30px;
+                transition: margin-left 0.3s;
+            }
+            
+
+            /* HEADER */
+            .header {
+                height: 70px;
+                width: 100%;
+                position: fixed;
+                top: 0;
+                left: 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0 24px;
+                border-bottom: 1px solid #244b8a;
+                z-index: 200;
+                background: #a8b2c9;
+                transition: background 0.3s, border 0.3s, color 0.3s;
+            }
+            .header-left {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+            }
+            .header-center {
+                font-size: 45px;
+                font-weight: 700;
+            }
+            .header-right {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                position: relative;
+            }
+
+            /* HEADER PROFILE */
+            .header-profile-wrapper {
+                position: relative;
+            }
+            /* DEFAULT PROFILE AVATAR */
+            .header-profile {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: #94a3b8;   
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                font-size: 18px;
+                color: white;
+                cursor: pointer;
+                border: 2px solid #428aff;
+            }
+
+            /* INITIAL LETTER */
+            .profile-initial {
+                user-select: none;
+            }
+
+            .header-profile-dropdown {
+                display: none;
+                position: absolute;
+                right: 0;
+                top: 60px;
+                background: #1e293b;
+                border-radius: 8px;
+                width: 160px;
+                padding: 10px 0;
+                text-align: left;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            }
+            .header-profile-dropdown a {
+                display: block;
+                padding: 12px 20px;
+                text-decoration: none;
+                color: #e5e7eb;
+                font-size: 16px;
+                border-radius: 4px;
+            }
+            .header-profile-dropdown a:hover {
+                background: #334155;
+            }
+            .header-profile-wrapper:hover .header-profile-dropdown {
+                display: block;
+            }
+
+            /* DARK/LIGHT MODE BUTTON */
+            .mode-btn {
+                cursor: pointer;
+                border: none;
+                background: #a8b2c9;
+                color: white;
+                font-size: 1px;
+                padding: 6px 10px;
+                border-radius: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: background 0.3s, color 0.3s;
+
+                /* FIXED POSITION */
+                position: fixed;
+                top: 15px;
+                right: 90px;
+                z-index: 500;
+            }
+            .mode-btn::after {
+                content: "🌙";
+                font-size: 23px;
+            }
+
+            /* FOOTER */
+            footer {
+                width: 100%;
+                padding: 12px 20px;
+                text-align: center;
+                font-size: 12px;
+                color: #050505;
+                border-top: 1px solid #e5e7eb;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                background: #d2d8df;
+                transition: background 0.3s, color 0.3s, border 0.3s;
+            }
+
+            /* --- DARK MODE -- */
+            #mode-toggle:checked + .wrapper {
+                background: #0f172a;
+                color: #e5e7eb;
+            }
+            #mode-toggle:checked + .wrapper .sidebar {
+                background: #1e293b;
+            }
+            #mode-toggle:checked + .wrapper .menu a {
+                color: #e5e7eb;
+            }
+            #mode-toggle:checked + .wrapper .menu a:hover {
+                background: #334155;
+            }
+            #mode-toggle:checked + .wrapper .header {
+                background: #1e293b;
+                border-bottom: 1px solid #334155;
+                color: #e5e7eb;
+            }
+            #mode-toggle:checked + .wrapper .header-profile-dropdown {
+                background: #334155;
+            }
+            #mode-toggle:checked + .wrapper .main h1 {
+                color: #e5e7eb;
+            }
+            #mode-toggle:checked + .wrapper footer {
+                background: #1e293b;
+                color: #94a3b8;
+                border-top: 1px solid #334155;
+            }
+            #mode-toggle:checked + .wrapper .mode-btn {
+                background: #facc15;
+                color: #0f172a;
+            }
+            #mode-toggle:checked + .wrapper .mode-btn::after {
+                content: "☀️";
+            }
+            <!--logo-->
+            /* LOGO STYLING */
+            .logo {
+                font-size: 45px;      /* change size here */
+                font-weight: 800;     /* makes it bold */
+                letter-spacing: 1px; /* optional: looks premium */
+                color: #38bdf8;
+            }
+            .header .logo {
+                font-size: 35px;
+            }
+            /* SIDEBAR MENU WITH LOGO */
+            .menu a {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-size: 15px;
+            }
+
+            /* MENU ICON / LOGO */
+            .menu-icon {
+                font-size: 18px;
+                min-width: 22px;
+                text-align: center;
+            }
+            #sidebar-toggle:checked + .wrapper .menu a {
+                justify-content: center;
+            }
+
+            #sidebar-toggle:checked + .wrapper .menu a span:not(.menu-icon) {
+                display: none;
+            }
+            /* SIDEBAR MENU ICON + TEXT */
+            .menu a {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                position: relative;
+                padding: 12px;
+            }
+
+            /* ICON */
+            .menu-icon {
+                font-size: 18px;
+                min-width: 26px;
+                text-align: center;
+            }
+
+            /* TEXT */
+            .menu-text {
+                white-space: nowrap;
+                transition: opacity 0.3s;
+            }
+
+            /* COLLAPSED SIDEBAR ICON-ONLY */
+            #sidebar-toggle:checked ~ .wrapper .sidebar {
+                width: 80px;
+            }
+
+            #sidebar-toggle:checked ~ .wrapper .menu a {
+                justify-content: center;
+            }
+
+            /* HIDE TEXT */
+            #sidebar-toggle:checked ~ .wrapper .menu-text {
+                opacity: 0;
+                position: absolute;
+                pointer-events: none;
+            }
+
+            /* TOOLTIP */
+            #sidebar-toggle:checked ~ .wrapper .menu a::after {
+                content: attr(data-title);
+                position: absolute;
+                left: 90px;
+                top: 50%;
+                transform: translateY(-50%);
+                background: #1e293b;
+                color: #e5e7eb;
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-size: 13px;
+                white-space: nowrap;
+                opacity: 0;
+                pointer-events: none;
+                z-index: 9999;
+                transition: opacity 0.2s ease;
+            }
+
+            #sidebar-toggle:checked ~ .wrapper .menu a:hover::after {
+                opacity: 1;
+            }
+            .wrapper {
+                display: flex;
+                min-height: 100vh;
+            }
+
+            .main-content {
+                flex: 1;
+                padding: 20px;
+                overflow-x: hidden;
+            }
+            /* ===== TABLET VIEW ======= */
+            @media (max-width: 1024px) {
+            .sidebar {
+                width: 80px;
+            }
+            @media (max-width: 1024px) {
+            /* Keep full sidebar text visible on tablet */
+            .menu-text {
+                    display: inline;
+                    opacity: 1;
+                    position: relative;
+                }
+
+                .menu a {
+                    justify-content: flex-start;
+                }
+
+                .sidebar {
+                    width: 240px; /* full width */
+                }
+
+                .main {
+                    margin-left: 240px;
+                }
+            }
+            .topbar {
+                padding: 10px 20px;
+            }
+            }
+            /* ===== MOBILE VIEW ===== */
+            @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -260px; /* hidden by default */
+                width: 240px; /* full width */
+                top: 0;
+                height: 100vh;
+                transition: left 0.3s ease;
+            }
+
+            #sidebar-toggle:checked ~ .wrapper .sidebar {
+                left: 0; /* show sidebar on toggle */
+            }
+
+            .menu-text {
+                display: inline; /* show text */
+                opacity: 1;
+                position: relative;
+            }
+
+            .menu a {
+                justify-content: flex-start; /* icon + text */
+                padding: 12px 20px;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 90px 16px 16px 16px;
+            }
+            }
+
+            @media (max-width: 768px) {
+
+            /* HEADER */
+            .header {
+                padding: 0 12px;
+            }
+
+            .header-center {
+                font-size: 20px;
+                text-align: center;
+                flex: 1;
+            }
+
+            .header-left .logo {
+                font-size: 22px;
+            }
+
+            /* SIDEBAR */
+            .sidebar {
+                width: 0;
+            }
+
+            #sidebar-toggle:checked ~ .wrapper .sidebar {
+                width: 240px;
+            }
+
+            /* MAIN CONTENT */
+            .main {
+                margin-left: 0;
+                padding: 90px 16px 16px 16px;
+            }
+
+            #sidebar-toggle:checked ~ .wrapper .main {
+                margin-left: 0;
+            }
+
+            /* MODE BUTTON */
+            .mode-btn {
+                right: 12px;
+                top: 12px;
+            }
+            }
+            @media (max-width: 1024px) {
+
+            .header-center {
+                font-size: 28px;
+            }
+
+            .sidebar {
+                width: 80px;
+            }
+
+            .main {
+                margin-left: 80px;
+            }
+            }
+            @media (max-width: 768px) {
+            /* HEADER RIGHT STACK */
+            .header-right {
+                gap: 6px;
+            }
+
+            /* DARK MODE BUTTON */
+            .mode-btn {
+                position: static;   /* remove fixed on mobile */
+                padding: 4px 6px;
+            }
+
+            /* PROFILE */
+            .header-profile {
+                width: 34px;
+                height: 34px;
+            }
+
+            .header-username {
+                display: none;  /* hide username on small screens */
+            }
+
+            /* HEADER CENTER TEXT */
+            .header-center {
+                font-size: 18px;
+                text-align: center;
+            }
+            }
+            @media (max-width: 1024px) {
+                #sidebar-toggle:checked ~ .wrapper .menu a::after {
+                    display: none;
+                }
+            }
+        </style>
+    </head>
+    <body>
+
+        <!-- CHECKBOXES -->
+        <input type="checkbox" id="sidebar-toggle">
+        <input type="checkbox" id="mode-toggle">
+
+        <div class="wrapper">
+            <!-- HEADER -->
+            <header class="header">
+                <div class="header-left">
+                    <span class="logo">VS</span>
+                    <label for="sidebar-toggle" class="toggle-btn">☰</label>
+                </div>
+                <div class="header-center">Visitor's Space</div>
+                    <div class="header-right">
+                        <label for="mode-toggle" class="mode-btn"></label>
+                        <div class="header-profile-wrapper">
+                            <div class="header-profile">
+                                <span class="profile-initial">A</span>
+                            </div>                            
+                            <span class="header-username">Admin</span>
+                            <div class="header-profile-dropdown">
+                                <a href="#">My Profile</a>
+                                <a href="#">Logout</a>
+                            </div>
+                        </div>
+                        
+                    </div>
+            </header>
+
+            <!-- SIDEBAR -->
+            <aside class="sidebar">
+                <div class="sidebar-top">
+                    <span class="logo">VS</span>
+                    <label for="sidebar-toggle" class="toggle-btn">☰</label>
+                </div>
+                <nav class="menu">
+                    <a href="{% url 'scheduled_meets' %}" data-title="Scheduled Meets">
+                      <span class="menu-icon">📅</span>
+                      <span class="menu-text">Scheduled Meets</span>
+                    </a>
+                    <a href="{% url 'approved_meets' %}" data-title="Approved Meets">
+                      <span class="menu-icon">✅</span>
+                      <span class="menu-text">Approved Meets</span>
+                    </a>
+                    <a href="{% url 'rejected_meets' %}" data-title="Rejected Meets">
+                      <span class="menu-icon">❌</span>
+                      <span class="menu-text">Rejected Meets</span>
+                    </a>
+                    <a href="{% url 'rescheduled_meets' %}" data-title="Rescheduled Meets">
+                      <span class="menu-icon">🔁</span>
+                      <span class="menu-text">Rescheduled Meets</span>
+                    </a>
+                    <a href="#" data-title="Reports">
+                      <span class="menu-icon">📊</span>
+                      <span class="menu-text">Reports</span>
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- MAIN CONTENT -->
+            <main class="main">
+                {% block content %}
+                <h1>Welcome to your dashboard</h1>
+                {% endblock %}
+            </main>
+            
+
+            <!-- FOOTER -->
+            <footer>
+                &copy; 2026 Visitor Space. All rights reserved.
+            </footer>
+
+        </div>
+        
+     </body>
+</html>
