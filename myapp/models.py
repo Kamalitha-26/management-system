@@ -1,6 +1,7 @@
 from django.db import models
 from datetime import datetime, timedelta
 import random
+from django.contrib.auth.models import User
 class Visitor(models.Model):
     visitor_name = models.CharField(max_length=100)
     visitor_email = models.EmailField()
@@ -10,16 +11,20 @@ class Visitor(models.Model):
     reason = models.TextField()
     designated_attendee = models.CharField(max_length=100)
     document = models.FileField(upload_to='visitor_documents/', null=True, blank=True)
-
-    status = models.CharField(
-        max_length=20,
-        default='Scheduled'
-    )
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.visitor_name
+
+        
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    role = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.user.username
+
+
 
 
 class VisitorSchedule(models.Model):

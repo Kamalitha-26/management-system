@@ -1,297 +1,120 @@
 {% extends "base_dashboard.html" %}
-{% load static%}
+{% load static %}
 
 {% block content %}
 <h1 class="page-title">Approved Meets</h1>
 
-<style>
-    /* ===============================
-    TABLE BASE
-    ================================ */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        background: #ffffff;
-        border-radius: 20px;
-        overflow: hidden;
-    }
+<div class="meetings-page">
 
-    thead th {
-        background: #1c6e94;
-        color: #ffffff;
-        padding: 14px 16px;
-        font-size: 17px;
-        text-align: left;
-    }
+    <div class="table-controls-bar">
 
-    tbody td {
-        padding: 20px 16px;
-        font-size: 18px;
-        border-bottom: 1px solid #e5e7eb;
-        white-space: nowrap;
-        vertical-align: middle;
-    }
+        <!-- LEFT: Records per page -->
+        
+        <form method="get" class="limit-form">
+            {# keep search value if exists #}
+            {% if request.GET.q %}
+                <input type="hidden" name="q" value="{{ request.GET.q }}">
+            {% endif %}
+        
+            <label class="limit-label">Records per page</label>
+        
+            <select name="limit" class="limit-select" onchange="this.form.submit()">
+                <option value="5"  {% if limit == 5 %}selected{% endif %}>5</option>
+                <option value="10" {% if limit == 10 %}selected{% endif %}>10</option>
+                <option value="15" {% if limit == 15 %}selected{% endif %}>15</option>
+                <option value="20" {% if limit == 20 %}selected{% endif %}>20</option>
+            </select>
+        </form>
+        
+    
+        <!-- RIGHT: Search -->
+        <form method="get" class="search-form">
+            <input
+                type="text"
+                name="q"
+                placeholder="Search Visitor ID or Name"
+                value="{{ request.GET.q }}"
+                class="search-input"
+                oninput="this.form.submit()"
+            >
+        </form>
+        
+    
+    </div>
+    
+    <!-- ✅ overflow ONLY here -->
+    <div class="table-wrapper" style="overflow-x:auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Category</th>
+                    <th>Document</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Reason</th>
+                    <th>Attendee</th>
+                </tr>
+            </thead>
 
-    /* ===============================
-        FULL ROW BACKGROUND FIX
-    ================================ */
-    .meet-row {
-        background-color: #f8fafc;
-    }
+            <tbody>
+                {% for schedule in page_obj %}
+                <tr>
+                    <td>{{ schedule.visitor.id }}</td>
+                    <td>{{ schedule.visitor.visitor_name }}</td>
+                    <td>{{ schedule.visitor.visitor_email }}</td>
+                    <td>{{ schedule.visitor.category }}</td>
+                    <td>{{ schedule.visitor.document }}</td>
+                    <td>{{ schedule.visitor.appointment_date }}</td>
+                    <td>{{ schedule.visitor.appointment_time }}</td>
+                    <td>{{ schedule.visitor.reason }}</td>
+                    <td>{{ schedule.visitor.designated_attendee }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" style="text-align:center;">
+                        No records found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    .meet-row td {
-        background-color: inherit !important;
-    }
+    <!-- ✅ pagination stays inside meetings-page -->
+    <nav>
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ page_obj.previous_page_number }}&limit={{ limit }}">
+                    Previous
+                </a>
+            </li>
+            {% endif %}
 
-    tbody tr:hover {
-        background-color: #f1f5f9;
-    }
-
-    /* ===============================
-    STATUS BADGES
-    ================================ */
-    .status {
-        padding: 8px 14px;
-        border-radius: 12px;
-        font-size: 13px;
-        font-weight: 600;
-        text-transform: capitalize;
-        display: inline-block;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .status.pending {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .status.approved {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .status.rejected {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .status.rescheduled {
-        background: #e0f2fe;
-        color: #075985;
-    }
-
-    /* ===============================
-        ACTION BUTTONS
-    ================================ */
-    .actions {
-        display: flex;
-        gap: 16px;
-    }
-
-    .btn {
-        padding: 6px 12px;
-        font-size: 13px;
-        border-radius: 6px;
-        font-weight: 600;
-        color: #fff;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        text-decoration: none;
-    }
-
-    .btn.approve { background: #22c55e; }
-    .btn.reject { background: #ef4444; }
-    .btn.reschedule { background: #0ea5e9; }
-
-    .btn:hover {
-        opacity: 0.9;
-        transform: translateY(-1px);
-    }
-
-    /* ===============================
-         PAGINATION
-    ================================ */
-    .pagination {
-        display: flex;
-        list-style: none;
-        justify-content: center;
-        gap: 8px;
-        margin-top: 25px;
-    }
-
-    .page-item {
-        border-radius: 6px;
-    }
-
-    .page-link {
-        display: block;
-        padding: 6px 12px;
-        border: 1px solid #cbd5e1;
-        border-radius: 6px;
-        text-decoration: none;
-        font-size: 18px;
-        font-weight: 600;
-        color: #1c6e94;
-        transition: all 0.2s ease;
-    }
-
-    .page-link:hover { background-color: #e0f2fe; }
-
-    .page-item.active .page-link {
-        background-color: #1c6e94;
-        color: #ffffff;
-        border-color: #1c6e94;
-        cursor: default;
-    }
-
-    .page-item.disabled .page-link {
-        opacity: 0.5;
-        pointer-events: none;
-    }
-
-    /* ===============================
-        RECORDS PER PAGE (LIMIT)
-    ================================ */
-    .limit-control {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 18px;
-        font-size: 18px;
-        font-weight: 600;
-        color: #334155;
-    }
-
-    .limit-control input[type="number"] {
-        width: 80px;
-        padding: 6px 8px;
-        border-radius: 6px;
-        border: 1px solid #cbd5e1;
-        outline: none;
-        font-size: 14px;
-    }
-
-    .limit-control input[type="number"]:focus {
-        border-color: #1c6e94;
-        box-shadow: 0 0 0 2px rgba(28, 110, 148, 0.2);
-    }
-
-    .limit-control button {
-        padding: 6px 14px;
-        background-color: #1c6e94;
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .limit-control button:hover {
-        background-color: #155a78;
-    }
-       /* ===============================
-     PAGE SPACING FIX
-    ================================ */
-
-    /* Space below heading */
-    .page-title {
-        margin-bottom: 18px;
-    }
-
-    /* Space between limit control and table */
-    .limit-control {
-        margin-bottom: 22px;
-    }
-
-    /* Ensure table never sticks to controls */
-    .table-wrapper {
-        margin-top: 0;
-    }
-</style>
-
-<div class="table-wrapper" style="overflow-x:auto;">
-    <form method="get" class="limit-control">
-        <label>
-            Records per page:
-            <input type="number" name="limit" value="{{ limit }}" min="1">
-        </label>
-        <button type="submit">Apply</button>
-    </form>
-
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Category</th>
-                <th>Document</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Reason</th>
-                <th>Attendee</th>
-                <!-- <th>Status</th>
-                <th>Actions</th> -->
-            </tr>
-        </thead>
-
-        <tbody>
-            {% for schedule in page_obj %}
-            <tr>
-                <td>{{ schedule.visitor.id }}</td>
-                <td>{{ schedule.visitor.visitor_name }}</td>
-                <td>{{ schedule.visitor.visitor_email }}</td>
-                <td>{{ schedule.visitor.category }}</td>
-                <td>{{ schedule.visitor.document }}</td>
-                <td>{{ schedule.visitor.appointment_date }}</td>
-                <td>{{ schedule.visitor.appointment_time }}</td>
-                <td>{{ schedule.visitor.reason }}</td>
-                <td>{{ schedule.visitor.designated_attendee }}</td>
-
-                <!-- <td>
-                    <span class="status approved">Approved</span>
-                </td>
-
-                <td class="actions">
-                    <a href="{% url 'update_schedule_status' schedule.id 'Rescheduled' %}" class="btn reschedule">
-                        Reschedule
-                    </a>
-                    <a href="{% url 'update_schedule_status' schedule.id 'Rejected' %}" class="btn reject">
-                        Reject
-                    </a>
-                </td> -->
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="11" style="text-align:center;">
-                    No Approved Meets Found
-                </td>
-            </tr>
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                <a class="page-link"
+                   href="?page={{ num }}&limit={{ limit }}">
+                    {{ num }}
+                </a>
+            </li>
             {% endfor %}
-        </tbody>
-    </table>
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ page_obj.next_page_number }}&limit={{ limit }}">
+                    Next
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+
 </div>
-<nav>
-    <ul class="pagination">
-        {% if page_obj.has_previous %}
-        <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&limit={{ limit }}">Previous</a>
-        </li>
-        {% endif %}
 
-        {% for num in page_obj.paginator.page_range %}
-        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-            <a class="page-link" href="?page={{ num }}&limit={{ limit }}">{{ num }}</a>
-        </li>
-        {% endfor %}
-
-        {% if page_obj.has_next %}
-        <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.next_page_number }}&limit={{ limit }}">Next</a>
-        </li>
-        {% endif %}
-    </ul>
-</nav>
 {% endblock %}

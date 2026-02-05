@@ -1,8 +1,11 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{% static 'assets/css/meetings.css' %}">
         <title>Visitor Space</title>
         <style>
             /* RESET */
@@ -281,7 +284,7 @@
 
             /* ICON */
             .menu-icon {
-                font-size: 18px;
+                font-size: 25px;
                 min-width: 26px;
                 text-align: center;
             }
@@ -290,6 +293,7 @@
             .menu-text {
                 white-space: nowrap;
                 transition: opacity 0.3s;
+                font-weight: 500;
             }
 
             /* COLLAPSED SIDEBAR ICON-ONLY */
@@ -319,7 +323,7 @@
                 color: #e5e7eb;
                 padding: 6px 12px;
                 border-radius: 6px;
-                font-size: 13px;
+                font-size: 18px;
                 white-space: nowrap;
                 opacity: 0;
                 pointer-events: none;
@@ -515,7 +519,7 @@
                             <span class="header-username">Admin</span>
                             <div class="header-profile-dropdown">
                                 <a href="#">My Profile</a>
-                                <a href="#">Logout</a>
+                                <a href="{% url 'logout' %}">Logout</a>
                             </div>
                         </div>
                         
@@ -529,6 +533,11 @@
                     <label for="sidebar-toggle" class="toggle-btn">☰</label>
                 </div>
                 <nav class="menu">
+                    <!-- DASHBOARD LINK (Uses 'dashboard' URL name) -->
+                    <a href="{% url 'dashboard' %}" data-title="Dashboard">
+                      <span class="menu-icon">🏠</span>
+                      <span class="menu-text">Dashboard</span>
+                    </a>
                     <a href="{% url 'scheduled_meets' %}" data-title="Scheduled Meets">
                       <span class="menu-icon">📅</span>
                       <span class="menu-text">Scheduled Meets</span>

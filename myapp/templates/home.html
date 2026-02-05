@@ -91,7 +91,7 @@
             <form class="form" action="{% url 'visitor_registration' %}" method="post" enctype="multipart/form-data" autocomplete="off" onsubmit="showLoader()">
                 {% csrf_token %}
                 <!-- Form Fields -->
-                <input type="hidden" id="visitor_id" name="visitor_id" required readonly/>
+                <!-- <input type="hidden" id="visitor_id" name="visitor_id" required readonly/> -->
                 <div class="mb-3">
                     <label for="visitor_name" class="form-label">Visitor Name</label>
                     <input type="text" id="visitor_name" name="visitor_name"  class="form-control" placeholder="Enter your name" required>

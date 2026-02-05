@@ -1,0 +1,50 @@
+{% extends "base_dashboard.html" %}
+
+{% block content %}
+
+<h1 class="page-title">Reschedule Meeting</h1>
+
+<div style="max-width: 500px; margin-top: 30px;">
+
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- READ-ONLY DETAILS -->
+        <p><strong>Visitor ID:</strong> {{ schedule.visitor.id }}</p>
+        <p><strong>Name:</strong> {{ schedule.visitor.visitor_name }}</p>
+        <p><strong>Email:</strong> {{ schedule.visitor.visitor_email }}</p>
+        <p><strong>Reason:</strong> {{ schedule.visitor.reason }}</p>
+
+        <hr style="margin: 20px 0;">
+
+        <!-- DATE -->
+        <label>New Appointment Date</label><br>
+        <input
+            type="date"
+            name="appointment_date"
+            value="{{ schedule.visitor.appointment_date }}"
+            required
+        ><br><br>
+
+        <!-- TIME -->
+        <label>New Appointment Time</label><br>
+        <input
+            type="time"
+            name="appointment_time"
+            value="{{ schedule.visitor.appointment_time }}"
+            required
+        ><br><br>
+
+        <button type="submit" class="btn approve">
+            Save Changes
+        </button>
+
+        <a href="{% url 'scheduled_meets' %}" class="btn reject">
+            Cancel
+        </a>
+        <input type="hidden" name="from_page" value="{{ request.GET.from }}">
+    </form>
+
+</div>
+
+{% endblock %}

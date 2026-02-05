@@ -2,11 +2,10 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-
-    # HOME & DASHBOARD
     path('', views.home, name='home'),
+    # DASHBOARD (front page) - Use only one
     path('dashboard/', views.dashboard, name='dashboard'),
-
+    
     # VISITOR REGISTRATION
     path('register/', views.register_visitor, name='visitor_registration'),
 
@@ -25,4 +24,18 @@ urlpatterns = [
 
     # LOGOUT
     path('logout/', views.user_logout, name='logout'),
+
+    path(
+        'reschedule/<int:schedule_id>/',
+        views.reschedule_meet,
+        name='reschedule_meet'
+    ),
+    
+
+    # urls.py
+    path('meets/reschedule/<int:pk>/', views.reschedule_meet, name='reschedule_meet'),
+    path('meets/rescheduled/', views.rescheduled_meets, name='rescheduled_meets'),
+
+    path('meets/delete/<int:schedule_id>/', views.delete_meet, name='delete_meet'),
+
 ]

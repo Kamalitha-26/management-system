@@ -4,292 +4,241 @@
 {% block content %}
 <h1 class="page-title">Rescheduled Meets</h1>
 
-<style>
-    /* ===============================
-    TABLE BASE
-    ================================ */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        background: #ffffff;
-        border-radius: 20px;
-        overflow: hidden;
-    }
 
-    thead th {
-        background: #1c6e94;
-        color: #ffffff;
-        padding: 14px 16px;
-        font-size: 17px;
-        text-align: left;
-    }
 
-    tbody td {
-        padding: 20px 16px;
-        font-size: 16px;
-        border-bottom: 1px solid #e5e7eb;
-        white-space: nowrap;
-        vertical-align: middle;
-    }
+<div class="meetings-page">
 
-    /* ===============================
-        FULL ROW BACKGROUND FIX
-    ================================ */
-    .meet-row {
-        background-color: #f8fafc;
-    }
+    <div class="table-controls-bar">
 
-    .meet-row td {
-        background-color: inherit !important;
-    }
-
-    tbody tr:hover {
-        background-color: #f1f5f9;
-    }
-
-    /* ===============================
-    STATUS BADGES
-    ================================ */
-    .status {
-        padding: 8px 14px;
-        border-radius: 12px;
-        font-size: 13px;
-        font-weight: 600;
-        text-transform: capitalize;
-        display: inline-block;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .status.pending {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .status.approved {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .status.rejected {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .status.rescheduled {
-        background: #e0f2fe;
-        color: #075985;
-    }
-
-    /* ===============================
-        ACTION BUTTONS
-    ================================ */
-    .actions {
-        display: flex;
-        gap: 16px;
-    }
-
-    .btn {
-        padding: 6px 12px;
-        font-size: 13px;
-        border-radius: 6px;
-        font-weight: 600;
-        color: #fff;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        text-decoration: none;
-    }
-
-    .btn.approve { background: #22c55e; }
-    .btn.reject { background: #ef4444; }
-    .btn.reschedule { background: #0ea5e9; }
-
-    .btn:hover {
-        opacity: 0.9;
-        transform: translateY(-1px);
-    }
-
-    /* ===============================
-         PAGINATION
-    ================================ */
-    .pagination {
-        display: flex;
-        list-style: none;
-        justify-content: center;
-        gap: 8px;
-        margin-top: 25px;
-    }
-
-    .page-item {
-        border-radius: 6px;
-    }
-
-    .page-link {
-        display: block;
-        padding: 6px 12px;
-        border: 1px solid #cbd5e1;
-        border-radius: 6px;
-        text-decoration: none;
-        font-size: 18px;
-        font-weight: 600;
-        color: #1c6e94;
-        transition: all 0.2s ease;
-    }
-
-    .page-link:hover { background-color: #e0f2fe; }
-
-    .page-item.active .page-link {
-        background-color: #1c6e94;
-        color: #ffffff;
-        border-color: #1c6e94;
-        cursor: default;
-    }
-
-    .page-item.disabled .page-link {
-        opacity: 0.5;
-        pointer-events: none;
-    }
-
-    /* ===============================
-        RECORDS PER PAGE (LIMIT)
-    ================================ */
-    .limit-control {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 18px;
-        font-size: 18px;
-        font-weight: 600;
-        color: #334155;
-    }
-
-    .limit-control input[type="number"] {
-        width: 80px;
-        padding: 6px 8px;
-        border-radius: 6px;
-        border: 1px solid #cbd5e1;
-        outline: none;
-        font-size: 14px;
-    }
-
-    .limit-control input[type="number"]:focus {
-        border-color: #1c6e94;
-        box-shadow: 0 0 0 2px rgba(28, 110, 148, 0.2);
-    }
-
-    .limit-control button {
-        padding: 6px 14px;
-        background-color: #1c6e94;
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .limit-control button:hover {
-        background-color: #155a78;
-    }
-       /* ===============================
-     PAGE SPACING FIX
-    ================================ */
-
-    /* Space below heading */
-    .page-title {
-        margin-bottom: 18px;
-    }
-
-    /* Space between limit control and table */
-    .limit-control {
-        margin-bottom: 22px;
-    }
-
-    /* Ensure table never sticks to controls */
-    .table-wrapper {
-        margin-top: 0;
-    }
-</style>
-
-<div class="table-wrapper" style="overflow-x:auto;">
-    <form method="get" class="limit-control">
-        <label>
-            Records per page:
-            <input type="number" name="limit" value="{{ limit }}" min="1">
-        </label>
-        <button type="submit">Apply</button>
-    </form>
-
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Category</th>
-                <th>Documents</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Reason</th>
-                <th>Designated Attendee</th>
-                <!-- <th>Status</th> -->
-                <!-- <th>Actions</th> -->
-            </tr>
-        </thead>
-
-        <tbody>
-            {% for schedule in page_obj %}
-            <tr class="meet-row">
-                <td>{{ schedule.visitor.id }}</td>
-                <td>{{ schedule.visitor.visitor_name }}</td>
-                <td>{{ schedule.visitor.visitor_email }}</td>
-                <td>{{ schedule.visitor.category }}</td>
-                <td>{{ schedule.visitor.document }}</td>
-                <td>{{ schedule.visitor.appointment_date }}</td>
-                <td>{{ schedule.visitor.appointment_time }}</td>
-                <td>{{ schedule.visitor.reason }}</td>
-                <td>{{ schedule.visitor.designated_attendee }}</td>
-                <!-- <td>
-                    <span class="status rescheduled">Rescheduled</span>
-                </td>
-                <td class="actions">
-                    <a href="{% url 'update_schedule_status' schedule.id 'Approved' %}" class="btn approve">Approve</a>
-                    <a href="{% url 'update_schedule_status' schedule.id 'Rejected' %}" class="btn reject">Reject</a>
-                    <a href="{% url 'update_schedule_status' schedule.id 'Rescheduled' %}" class="btn reschedule">Reschedule</a>
-                </td> -->
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="11" style="text-align:center;">No Rescheduled Meets</td>
-            </tr>
-            {% endfor %}
-        </tbody>
+        <!-- LEFT: Records per page -->
         
-    </table>
-</div>
-
-<nav aria-label="Page navigation">
-    <ul class="pagination">
-        {% if page_obj.has_previous %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.previous_page_number }}&limit={{ limit }}">Previous</a>
-            </li>
-        {% endif %}
-
-        {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-                <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
-            {% else %}
-                <li class="page-item"><a class="page-link" href="?page={{ num }}&limit={{ limit }}">{{ num }}</a></li>
+        <form method="get" class="limit-form">
+            {# keep search value if exists #}
+            {% if request.GET.q %}
+                <input type="hidden" name="q" value="{{ request.GET.q }}">
             {% endif %}
-        {% endfor %}
+        
+            <label class="limit-label">Records per page</label>
+        
+            <select name="limit" class="limit-select" onchange="this.form.submit()">
+                <option value="5"  {% if limit == 5 %}selected{% endif %}>5</option>
+                <option value="10" {% if limit == 10 %}selected{% endif %}>10</option>
+                <option value="15" {% if limit == 15 %}selected{% endif %}>15</option>
+                <option value="20" {% if limit == 20 %}selected{% endif %}>20</option>
+            </select>
+        </form>
+        
+    
+        <!-- RIGHT: Search -->
+        <form method="get" class="search-form">
+            <input
+                type="text"
+                name="q"
+                placeholder="Search Visitor ID or Name"
+                value="{{ request.GET.q }}"
+                class="search-input"
+                oninput="this.form.submit()"
+            >
+        </form>
+        
+    
+    </div>
+    
+    <!-- ✅ overflow ONLY here -->
+    <div class="table-wrapper" style="overflow-x:auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Category</th>
+                    <th>Document</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Reason</th>
+                    <th>Attendee</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
 
-        {% if page_obj.has_next %}
+            <tbody>
+                {% for schedule in page_obj %}
+                <tr>
+                    <td>{{ schedule.visitor.id }}</td>
+                    <td>{{ schedule.visitor.visitor_name }}</td>
+                    <td>{{ schedule.visitor.visitor_email }}</td>
+                    <td>{{ schedule.visitor.category }}</td>
+                    <td>{{ schedule.visitor.document }}</td>
+                    <td>{{ schedule.visitor.appointment_date }}</td>
+                    <td>{{ schedule.visitor.appointment_time }}</td>
+                    <td>{{ schedule.visitor.reason }}</td>
+                    <td>{{ schedule.visitor.designated_attendee }}</td>
+                
+                    <td class="actions">
+                        <!-- APPROVE -->
+                        <button
+                            type="button"
+                            class="btn approve"
+                            onclick="openApproveModal('{% url "update_schedule_status" schedule.id "Approved" %}')">
+                            Approve
+                        </button>
+
+                
+                        <!-- REJECT -->
+                        <a
+                            href="{% url 'update_schedule_status' schedule.id 'Rejected' %}"
+                            class="btn reject">
+                            Reject
+                        </a>
+                
+                        <!-- RESCHEDULE -->
+                        <button
+                            type="button"
+                            class="btn reschedule"
+                            onclick="openRescheduleModal('{{ schedule.id }}', '{{ schedule.visitor.appointment_date }}', '{{ schedule.visitor.appointment_time }}')">
+                            Reschedule
+                        </button>
+                    </td>
+                </tr>
+                
+                {% empty %}
+                <tr>
+                    <td colspan="9" style="text-align:center;">
+                        No records found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ✅ pagination stays inside meetings-page -->
+    <nav>
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
             <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.next_page_number }}&limit={{ limit }}">Next</a>
+                <a class="page-link"
+                   href="?page={{ page_obj.previous_page_number }}&limit={{ limit }}">
+                    Previous
+                </a>
             </li>
-        {% endif %}
-    </ul>
-</nav>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                <a class="page-link"
+                   href="?page={{ num }}&limit={{ limit }}">
+                    {{ num }}
+                </a>
+            </li>
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ page_obj.next_page_number }}&limit={{ limit }}">
+                    Next
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    <!-- RESCHEDULE MODAL -->
+    <div id="rescheduleModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Reschedule Meeting</h2>
+
+            <form method="POST" id="rescheduleForm">
+                {% csrf_token %}
+
+                <label>New Date</label>
+                <input type="date" name="appointment_date" required>
+
+                <label>New Time</label>
+                <input type="time" name="appointment_time" required>
+
+                <!-- tells backend which page -->
+                <input type="hidden" name="from_page" value="{{ page_title|lower }}">
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn approve">Save</button>
+                    <button type="button" class="btn reject" onclick="closeRescheduleModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    function openRescheduleModal(id, date, time) {
+        const modal = document.getElementById("rescheduleModal");
+        const form = document.getElementById("rescheduleForm");
+    
+        modal.style.display = "flex";
+    
+        form.action = `/meets/reschedule/${id}/`;
+        form.appointment_date.value = date;
+        form.appointment_time.value = time;
+    }
+    
+    function closeRescheduleModal() {
+        document.getElementById("rescheduleModal").style.display = "none";
+    }
+</script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        
+            const form = document.getElementById("rescheduleForm");
+            if (!form) return;
+        
+            const timeInput = form.querySelector('input[name="appointment_time"]');
+        
+            timeInput.addEventListener("change", function () {
+                setTimeout(() => {
+                    closeRescheduleModal();
+                }, 300);
+            });
+        
+        });
+    </script>
+    <!-- <script>
+        function confirmApprove() {
+            return confirm("Are you sure you want to approve?");
+        }
+    </script> -->
+     <!-- APPROVE MODAL -->
+    <div id="approveModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Confirm Approval</h2>
+
+            <p style="margin: 15px 0; text-align:center;">
+                Are you sure you want to approve this meeting?
+            </p>
+
+            <div class="modal-actions">
+                <a id="approveYesBtn" class="btn approve">Yes, Approve</a>
+                <button type="button" class="btn reject" onclick="closeApproveModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openApproveModal(approveUrl) {
+            const modal = document.getElementById("approveModal");
+            const yesBtn = document.getElementById("approveYesBtn");
+    
+            yesBtn.href = approveUrl;
+            modal.style.display = "flex";
+        }
+    
+        function closeApproveModal() {
+            document.getElementById("approveModal").style.display = "none";
+        }
+    </script>
+    
+        
+        
+    
 
 {% endblock %}
